@@ -1,0 +1,118 @@
+Project weird_drink_catalog_v3 {
+  database_type: 'PostgreSQL'
+  Note: '현재 v2 기준 v0.3.1. 사용자별 평균의 평균, 등록 내부 LLM 판정, 추가 재료 관리. 평점과 허용 값 검증은 API에서 수행한다. 기본값과 인덱스의 실행 정의는 SQL 참조.'
+}
+
+Table users {
+  user_id bigint [pk, not null, increment, note: '사용자 식별자']
+  email varchar(255) [not null, note: '이메일. 서버에서 앞뒤 공백 제거와 소문자 정규화']
+  password_hash varchar(255) [note: '구글 전용 계정은 NULL, 이메일 로그인 계정은 BCrypt 해시']
+  display_name varchar(50) [not null, note: '후기와 개인 페이지 표시 이름']
+  role varchar(20) [not null, note: 'USER 또는 ADMIN, 가입 요청은 USER로 고정']
+  created_at timestamptz [not null, note: '가입 시각']
+  indexes {
+    (email) [unique]
+  }
+  Note: '사용자. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Table external_accounts {
+  external_account_id bigint [pk, not null, increment, note: '계정 연결 식별자']
+  user_id bigint [not null, note: '연결된 사용자']
+  provider varchar(20) [not null, note: '외부 인증 제공자']
+  provider_user_id varchar(255) [not null, note: '검증된 구글 sub']
+  linked_at timestamptz [not null, note: '계정 연결 시각']
+  indexes {
+    (provider, provider_user_id) [unique]
+    (user_id, provider) [unique]
+  }
+  Note: '외부 계정. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Table user_preferences {
+  user_id bigint [pk, not null, note: '사용자당 현재 설문 1건']
+  preferred_categories jsonb [not null, note: '커피, 스무디, 티 문자열 배열. 항목 검증은 서버 담당']
+  preferred_tastes jsonb [not null, note: '맛 선택값 또는 자유 입력의 문자열 배열']
+  sweetness_preference varchar(50) [not null, note: '선호 단맛']
+  excluded_ingredients jsonb [not null, note: '제외 재료 문자열 배열, 해당 없음은 빈 배열']
+  challenge_level varchar(20) [not null, note: '초심자, 중급자, 상급자']
+  updated_at timestamptz [not null, note: '최초 생성과 재설문 시 서버가 갱신']
+  Note: '사용자 선호. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Table brands {
+  brand_id bigint [pk, not null, increment, note: '지점이 아닌 브랜드 식별자']
+  name varchar(100) [not null, note: '표준 브랜드명, 별칭은 서버에서 정규화']
+  indexes {
+    (name) [unique]
+  }
+  Note: '브랜드. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Table drink_menus {
+  menu_id bigint [pk, not null, increment, note: '메뉴 식별자']
+  brand_id bigint [not null, note: '주문 브랜드']
+  created_by bigint [not null, note: '최초 등록자']
+  name varchar(100) [not null, note: '조합명, 이름 일치만으로 중복 판정하지 않음']
+  base_drink varchar(100) [not null, note: '기본 음료']
+  category varchar(30) [not null, note: '커피, 스무디, 티']
+  size varchar(50) [note: '브랜드별 사이즈, NULL 비교 규칙 확인 필요']
+  temperature varchar(30) [note: '온도, 표준값 확인 필요']
+  weirdness_level varchar(20) [not null, note: '초심자, 중급자, 상급자']
+  recipe_description text [note: '추가 주문 설명']
+  representative_image_url text [note: '새 메뉴 첫 후기의 첫 이미지. 해당 사진 삭제 시 NULL, 화면은 기본 이미지 표시']
+  created_at timestamptz [not null, note: '등록 시각과 최신순 정렬']
+  Note: '괴식 메뉴. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Table menu_options {
+  option_id bigint [pk, not null, increment, note: '옵션 식별자']
+  menu_id bigint [not null, note: '소속 메뉴']
+  action varchar(20) [not null, note: '현재는 추가만 사용, API에서 허용 값 검사']
+  ingredient_name varchar(100) [not null, note: '사용자가 입력한 추가 재료명']
+  quantity numeric(10,2) [note: '수량이 있는 경우 필수, 정량 표현이 없으면 NULL 허용']
+  unit varchar(30) [note: '수량 사용 시 필수, 정량 표현이 없으면 NULL 허용']
+  Note: '메뉴 옵션. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Table reviews {
+  review_id bigint [pk, not null, increment, note: '후기 식별자']
+  user_id bigint [not null, note: '작성자']
+  menu_id bigint [not null, note: '대상 메뉴']
+  rating smallint [not null, note: '개인 평점 1~5, API에서 검증']
+  content text [note: '선택 본문, 최대 2,000자 제안. 삭제 시 NULL']
+  created_at timestamptz [not null, note: '작성 시각']
+  Note: '후기. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Table review_images {
+  image_id bigint [pk, not null, increment, note: '이미지 식별자']
+  review_id bigint [not null, note: '소속 후기']
+  image_url text [not null, note: '서버가 저장한 이미지 주소']
+  display_order smallint [not null, note: '업로드 순서, 1~5']
+  indexes {
+    (review_id, display_order) [unique]
+  }
+  Note: '후기 이미지. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Table bookmarks {
+  user_id bigint [not null, note: '저장 사용자']
+  menu_id bigint [not null, note: '저장 메뉴']
+  saved_at timestamptz [not null, note: '최신 저장순 기준']
+  indexes {
+    (user_id, menu_id) [pk]
+  }
+  Note: '저장 목록. 범위 검증은 API, 관계와 유일성은 DB에서 적용.'
+}
+
+Ref: external_accounts.user_id > users.user_id [delete: restrict]
+Ref: user_preferences.user_id - users.user_id [delete: restrict]
+Ref: drink_menus.brand_id > brands.brand_id [delete: restrict]
+Ref: drink_menus.created_by > users.user_id [delete: restrict]
+Ref: menu_options.menu_id > drink_menus.menu_id [delete: restrict]
+Ref: reviews.user_id > users.user_id [delete: restrict]
+Ref: reviews.menu_id > drink_menus.menu_id [delete: restrict]
+Ref: review_images.review_id > reviews.review_id [delete: restrict]
+Ref: bookmarks.user_id > users.user_id [delete: restrict]
+Ref: bookmarks.menu_id > drink_menus.menu_id [delete: restrict]
