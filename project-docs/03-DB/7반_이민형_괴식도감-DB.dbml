@@ -1,0 +1,142 @@
+Project weird_drink_catalog {
+  Note: '''
+    괴식도감 DB 설계 초안 v0.2.0
+    기준: 프로젝트 기술서 초안_v2.md의 4장, 5장, 6장.
+    DBMS는 미정이며 타입과 길이는 논리 설계 기준이다.
+    충돌 처리 가정: 4장의 단순 평균과 중복 후보 안내보다 6.1절의 선택안을 우선한다.
+    메뉴 중복은 같은 브랜드 안에서 표준화한 레시피 항목의 유사도가 80% 이상인 경우로 판단한다.
+    유사도는 교집합 항목 수 / 합집합 항목 수이다. 복수 후보 연결 방식은 확인 필요.
+    메뉴 평점은 sum(rating * w(n)) / sum(w(n)), w(n) = 0.3 + 0.7 / (1 + ln(n))으로 계산한다.
+    n은 같은 사용자와 메뉴에 대한 후기 작성 순서다. 삭제 후 순서 유지 또는 재계산 정책은 확인 필요.
+    평균 평점, 후기 수, 설문 완료 여부는 조회 시 계산하며 별도 영구 컬럼을 두지 않는다.
+    영수증 원본과 추출 내용은 DB와 로그에 저장하지 않는다.
+    임시 인증의 사용자, 브랜드, 만료 시점, 사용 상태는 별도 임시 저장소에서 관리한다. 저장소와 유효 시간은 미정이다.
+    추천 이력과 챗봇 대화의 영구 저장은 이번 초안에 포함하지 않는다.
+    FK 삭제 동작은 모두 제한으로 가정한다. 관리자 삭제와 연결 데이터 정리 정책은 확인 필요.
+  '''
+}
+
+Table users {
+  user_id bigint [pk, increment]
+  email varchar(255) [not null, unique]
+  password_hash varchar(255) [note: '이메일 로그인 사용 시 필수. 구글 로그인 전용 계정은 NULL 허용. API 응답 제외.']
+  display_name varchar(50) [not null]
+  role varchar(20) [not null, default: 'USER', note: 'USER 또는 ADMIN. 일반 회원가입은 USER만 발급.']
+  created_at timestamp [not null]
+  Note: '이메일 일치만으로 구글 계정을 자동 연결하지 않는다. 가입 일시는 서버가 기록한다.'
+}
+
+Table external_accounts {
+  external_account_id bigint [pk, increment]
+  user_id bigint [not null]
+  provider varchar(20) [not null, note: '현재 GOOGLE만 지원']
+  provider_user_id varchar(255) [not null, note: '검증된 구글 계정의 sub']
+  linked_at timestamp [not null]
+  indexes {
+    (provider, provider_user_id) [unique]
+    (user_id, provider) [unique]
+  }
+  Note: '외부 계정 하나는 사용자 한 명에만 연결한다. 사용자별 구글 계정은 최대 하나다.'
+}
+
+Table user_preferences {
+  user_id bigint [pk]
+  preferred_categories text [not null, note: 'API 배열을 JSON 문자열로 직렬화하는 초안. 커피, 스무디, 티.']
+  preferred_tastes text [not null, note: '선택값 또는 자유 입력을 배열로 받아 JSON 문자열로 저장하는 초안']
+  sweetness_preference varchar(50) [not null]
+  excluded_ingredients text [not null, note: 'API 문자열 배열을 JSON 문자열로 저장. 해당 없음은 빈 배열.']
+  challenge_level varchar(20) [not null, note: '초심자, 중급자, 상급자']
+  updated_at timestamp [not null]
+  Note: '사용자별 현재 응답 하나만 보관한다. 최초 완료 시 생성하고 재설문 시 갱신한다. 행 존재 여부로 설문 완료를 판단한다. 응답 형식은 확인 필요.'
+}
+
+Table brands {
+  brand_id bigint [pk, increment]
+  name varchar(100) [not null, unique]
+  Note: '지점이 아닌 표준 브랜드 단위. 약칭 정규화 방식은 확인 필요.'
+}
+
+Table drink_menus {
+  menu_id bigint [pk, increment]
+  brand_id bigint [not null]
+  created_by bigint [not null]
+  name varchar(100) [not null, note: '메뉴명만으로 중복을 판정하지 않는다.']
+  base_drink varchar(100) [not null]
+  category varchar(30) [not null, note: '커피, 스무디, 티']
+  size varchar(50) [note: '브랜드별 표준값과 미입력 처리 기준 확인 필요']
+  temperature varchar(30) [note: '표준값과 미입력 처리 기준 확인 필요']
+  weirdness_level varchar(20) [not null, note: '초심자, 중급자, 상급자. 등록자 선택 후 관리자 수정 가능.']
+  recipe_description text
+  representative_image_url text [note: '신규 메뉴의 첫 후기에서 표시 순서 1인 이미지 주소. 삭제와 교체 정책 확인 필요.']
+  created_at timestamp [not null]
+  indexes {
+    (brand_id, base_drink)
+    (category, created_at)
+  }
+  Note: '메뉴와 첫 후기는 한 트랜잭션으로 생성한다. 첫 후기 이미지는 최소 1장이다. 중복 판정은 등록 시 재실행하며 동시 등록의 중복 방지는 애플리케이션에서 처리한다. 일반 사용자는 공용 메뉴를 삭제할 수 없다.'
+}
+
+Table menu_options {
+  option_id bigint [pk, increment]
+  menu_id bigint [not null]
+  action varchar(20) [not null, note: '추가, 제외, 변경']
+  ingredient_name varchar(100) [not null]
+  quantity decimal(10,2) [note: '수량을 사용하는 옵션은 필수. 단순 제외는 NULL 허용.']
+  unit varchar(30) [note: '수량 사용 시 필수. 예: 샷, 펌프, ml.']
+  indexes {
+    menu_id
+  }
+  Note: '재료명, 수량, 단위를 표준화해 비교한다. 변경 옵션의 원래 재료 표현 방식과 기본 음료의 전체 재료 데이터는 확인 필요.'
+}
+
+Table reviews {
+  review_id bigint [pk, increment]
+  user_id bigint [not null]
+  menu_id bigint [not null]
+  rating smallint [not null, note: '개인 평점, 1~5 사이 정수. 범위 검증 필요.']
+  content text [note: '필수 여부와 글자 수 제한 확인 필요']
+  created_at timestamp [not null]
+  indexes {
+    (menu_id, created_at)
+    (user_id, menu_id, created_at, review_id)
+  }
+  Note: '''
+    동일 사용자와 메뉴에 여러 후기 허용. (user_id, menu_id)에 UNIQUE를 두지 않는다.
+    신규 작성에는 해당 사용자와 메뉴 브랜드의 유효한 일회성 영수증 인증이 필요하다.
+    작성 순서는 created_at, review_id 순으로 계산하는 초안이다. 삭제 이후 정책은 확인 필요.
+    사용자는 본인 후기만 삭제할 수 있다. 이미지 정리와 대표 이미지 대체 정책은 확정이 필요하다.
+  '''
+}
+
+Table review_images {
+  image_id bigint [pk, increment]
+  review_id bigint [not null]
+  image_url text [not null]
+  display_order smallint [not null, note: '1~5 범위, 업로드 순서. 범위 검증 필요.']
+  indexes {
+    (review_id, display_order) [unique]
+  }
+  Note: '후기당 최대 5장. 신규 메뉴 첫 후기는 최소 1장. 파일 형식과 용량 제한은 확인 필요. 실제 파일은 별도 파일 저장소에 둔다.'
+}
+
+Table bookmarks {
+  user_id bigint [not null]
+  menu_id bigint [not null]
+  saved_at timestamp [not null]
+  indexes {
+    (user_id, menu_id) [pk]
+    (user_id, saved_at)
+  }
+  Note: '관심 메뉴 저장용. 실제 시음 기록은 후기에서 관리. 개인 페이지에서 최신 저장순 조회.'
+}
+
+Ref: external_accounts.user_id > users.user_id [delete: restrict]
+Ref: user_preferences.user_id - users.user_id [delete: restrict]
+Ref: drink_menus.brand_id > brands.brand_id [delete: restrict]
+Ref: drink_menus.created_by > users.user_id [delete: restrict]
+Ref: menu_options.menu_id > drink_menus.menu_id [delete: restrict]
+Ref: reviews.user_id > users.user_id [delete: restrict]
+Ref: reviews.menu_id > drink_menus.menu_id [delete: restrict]
+Ref: review_images.review_id > reviews.review_id [delete: restrict]
+Ref: bookmarks.user_id > users.user_id [delete: restrict]
+Ref: bookmarks.menu_id > drink_menus.menu_id [delete: restrict]

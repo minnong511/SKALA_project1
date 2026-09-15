@@ -1,0 +1,252 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1940" height="1610" viewBox="0 0 1940 1610" role="img" aria-labelledby="title desc">
+<title id="title">괴식도감 ERD</title>
+<desc id="desc">DBML 기반 9개 테이블의 기본키, 외래키, 데이터 타입과 관계. 화살표는 부모에서 자식 방향이다.</desc>
+<defs>
+  <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M1 1 L10 6 L1 11" fill="none" stroke="#526b87" stroke-width="2"/></marker>
+</defs>
+<style>
+text { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; }
+.heading { font-size: 32px; font-weight: 700; fill: #152c43; }
+.subtitle { font-size: 17px; fill: #526b87; }
+.table-name { font-size: 22px; font-weight: 700; fill: white; }
+.table-ko { font-size: 16px; fill: #cce5e9; }
+.field { font-family: Menlo, Consolas, monospace; font-size: 15px; fill: #20354b; }
+.datatype { font-family: Menlo, Consolas, monospace; font-size: 13px; fill: #62768c; }
+.key { font-family: Menlo, Consolas, monospace; font-size: 12px; font-weight: bold; fill: #007969; }
+.edge { fill: none; stroke: #526b87; stroke-width: 2; marker-end: url(#arrow); stroke-linejoin: round; }
+.label { font-size: 16px; font-weight: 600; fill: #334e68; paint-order: stroke; stroke: #f3f6fa; stroke-width: 7px; stroke-linejoin: round; }
+</style>
+<rect width="1940" height="1610" fill="#f3f6fa"/>
+<text x="70" y="55" class="heading">괴식도감 ERD</text>
+<text x="70" y="87" class="subtitle">7반 이민형 | DBML 기반 | PK 기본키, FK 외래키, UQ 고유값, * 필수</text>
+
+<path d="M710 210 H590" class="edge"/><text x="610" y="190" class="label">1 : 0..N</text>
+<path d="M1230 230 H1350" class="edge"/><text x="1260" y="210" class="label">1 : 0..1</text>
+<path d="M970 398 V540" class="edge"/><text x="990" y="480" class="label">1 : 0..N 등록</text>
+<path d="M590 630 H710" class="edge"/><text x="611" y="610" class="label">1 : 0..N</text>
+<path d="M1160 398 V475 H1610 V540" class="edge"/><text x="1330" y="455" class="label">1 : 0..N 저장</text>
+<path d="M1230 660 H1350" class="edge"/><text x="1250" y="640" class="label">1 : 0..N</text>
+<path d="M710 940 H660 V1115 H330 V1170" class="edge"/><text x="360" y="1094" class="label">1 : 0..N 옵션</text>
+<path d="M970 1064 V1170" class="edge"/><text x="990" y="1124" class="label">1 : 0..N 후기</text>
+<path d="M1230 340 H1280 V1120 H1180 V1170" class="edge"/><text x="1298" y="1038" class="label">1 : 0..N 작성</text>
+<path d="M1230 1290 H1350" class="edge"/><text x="1250" y="1270" class="label">1 : 0..5</text>
+<g><rect x="710" y="120" width="520" height="278" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M720 120 H1220 Q1230 120 1230 130 V186 H710 V130 Q710 120 720 120" fill="#183f50"/>
+<text x="728" y="148" class="table-name">users</text><text x="728" y="172" class="table-ko">사용자</text>
+<rect x="711" y="186" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="209" class="key">PK</text>
+<text x="780" y="209" class="field">user_id *</text>
+<text x="1215" y="209" text-anchor="end" class="datatype">bigint</text>
+<text x="722" y="243" class="key">UQ</text>
+<text x="780" y="243" class="field">email *</text>
+<text x="1215" y="243" text-anchor="end" class="datatype">varchar(255)</text>
+<rect x="711" y="254" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="277" class="key"></text>
+<text x="780" y="277" class="field">password_hash</text>
+<text x="1215" y="277" text-anchor="end" class="datatype">varchar(255)</text>
+<text x="722" y="311" class="key"></text>
+<text x="780" y="311" class="field">display_name *</text>
+<text x="1215" y="311" text-anchor="end" class="datatype">varchar(50)</text>
+<rect x="711" y="322" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="345" class="key"></text>
+<text x="780" y="345" class="field">role *</text>
+<text x="1215" y="345" text-anchor="end" class="datatype">varchar(20)</text>
+<text x="722" y="379" class="key"></text>
+<text x="780" y="379" class="field">created_at *</text>
+<text x="1215" y="379" text-anchor="end" class="datatype">timestamp</text>
+</g>
+<g><rect x="70" y="120" width="520" height="244" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M80 120 H580 Q590 120 590 130 V186 H70 V130 Q70 120 80 120" fill="#183f50"/>
+<text x="88" y="148" class="table-name">external_accounts</text><text x="88" y="172" class="table-ko">외부 계정</text>
+<rect x="71" y="186" width="518" height="34" fill="#f0f7f8"/>
+<text x="82" y="209" class="key">PK</text>
+<text x="140" y="209" class="field">external_account_id *</text>
+<text x="575" y="209" text-anchor="end" class="datatype">bigint</text>
+<text x="82" y="243" class="key">FK</text>
+<text x="140" y="243" class="field">user_id *</text>
+<text x="575" y="243" text-anchor="end" class="datatype">bigint</text>
+<rect x="71" y="254" width="518" height="34" fill="#f0f7f8"/>
+<text x="82" y="277" class="key"></text>
+<text x="140" y="277" class="field">provider *</text>
+<text x="575" y="277" text-anchor="end" class="datatype">varchar(20)</text>
+<text x="82" y="311" class="key"></text>
+<text x="140" y="311" class="field">provider_user_id *</text>
+<text x="575" y="311" text-anchor="end" class="datatype">varchar(255)</text>
+<rect x="71" y="322" width="518" height="34" fill="#f0f7f8"/>
+<text x="82" y="345" class="key"></text>
+<text x="140" y="345" class="field">linked_at *</text>
+<text x="575" y="345" text-anchor="end" class="datatype">timestamp</text>
+</g>
+<g><rect x="1350" y="120" width="520" height="312" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M1360 120 H1860 Q1870 120 1870 130 V186 H1350 V130 Q1350 120 1360 120" fill="#183f50"/>
+<text x="1368" y="148" class="table-name">user_preferences</text><text x="1368" y="172" class="table-ko">사용자 선호</text>
+<rect x="1351" y="186" width="518" height="34" fill="#f0f7f8"/>
+<text x="1362" y="209" class="key">PK/FK</text>
+<text x="1420" y="209" class="field">user_id *</text>
+<text x="1855" y="209" text-anchor="end" class="datatype">bigint</text>
+<text x="1362" y="243" class="key"></text>
+<text x="1420" y="243" class="field">preferred_categories *</text>
+<text x="1855" y="243" text-anchor="end" class="datatype">text</text>
+<rect x="1351" y="254" width="518" height="34" fill="#f0f7f8"/>
+<text x="1362" y="277" class="key"></text>
+<text x="1420" y="277" class="field">preferred_tastes *</text>
+<text x="1855" y="277" text-anchor="end" class="datatype">text</text>
+<text x="1362" y="311" class="key"></text>
+<text x="1420" y="311" class="field">sweetness_preference *</text>
+<text x="1855" y="311" text-anchor="end" class="datatype">varchar(50)</text>
+<rect x="1351" y="322" width="518" height="34" fill="#f0f7f8"/>
+<text x="1362" y="345" class="key"></text>
+<text x="1420" y="345" class="field">excluded_ingredients *</text>
+<text x="1855" y="345" text-anchor="end" class="datatype">text</text>
+<text x="1362" y="379" class="key"></text>
+<text x="1420" y="379" class="field">challenge_level *</text>
+<text x="1855" y="379" text-anchor="end" class="datatype">varchar(20)</text>
+<rect x="1351" y="390" width="518" height="34" fill="#f0f7f8"/>
+<text x="1362" y="413" class="key"></text>
+<text x="1420" y="413" class="field">updated_at *</text>
+<text x="1855" y="413" text-anchor="end" class="datatype">timestamp</text>
+</g>
+<g><rect x="70" y="540" width="520" height="142" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M80 540 H580 Q590 540 590 550 V606 H70 V550 Q70 540 80 540" fill="#183f50"/>
+<text x="88" y="568" class="table-name">brands</text><text x="88" y="592" class="table-ko">브랜드</text>
+<rect x="71" y="606" width="518" height="34" fill="#f0f7f8"/>
+<text x="82" y="629" class="key">PK</text>
+<text x="140" y="629" class="field">brand_id *</text>
+<text x="575" y="629" text-anchor="end" class="datatype">bigint</text>
+<text x="82" y="663" class="key">UQ</text>
+<text x="140" y="663" class="field">name *</text>
+<text x="575" y="663" text-anchor="end" class="datatype">varchar(100)</text>
+</g>
+<g><rect x="710" y="540" width="520" height="482" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M720 540 H1220 Q1230 540 1230 550 V606 H710 V550 Q710 540 720 540" fill="#183f50"/>
+<text x="728" y="568" class="table-name">drink_menus</text><text x="728" y="592" class="table-ko">괴식 메뉴</text>
+<rect x="711" y="606" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="629" class="key">PK</text>
+<text x="780" y="629" class="field">menu_id *</text>
+<text x="1215" y="629" text-anchor="end" class="datatype">bigint</text>
+<text x="722" y="663" class="key">FK</text>
+<text x="780" y="663" class="field">brand_id *</text>
+<text x="1215" y="663" text-anchor="end" class="datatype">bigint</text>
+<rect x="711" y="674" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="697" class="key">FK</text>
+<text x="780" y="697" class="field">created_by *</text>
+<text x="1215" y="697" text-anchor="end" class="datatype">bigint</text>
+<text x="722" y="731" class="key"></text>
+<text x="780" y="731" class="field">name *</text>
+<text x="1215" y="731" text-anchor="end" class="datatype">varchar(100)</text>
+<rect x="711" y="742" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="765" class="key"></text>
+<text x="780" y="765" class="field">base_drink *</text>
+<text x="1215" y="765" text-anchor="end" class="datatype">varchar(100)</text>
+<text x="722" y="799" class="key"></text>
+<text x="780" y="799" class="field">category *</text>
+<text x="1215" y="799" text-anchor="end" class="datatype">varchar(30)</text>
+<rect x="711" y="810" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="833" class="key"></text>
+<text x="780" y="833" class="field">size</text>
+<text x="1215" y="833" text-anchor="end" class="datatype">varchar(50)</text>
+<text x="722" y="867" class="key"></text>
+<text x="780" y="867" class="field">temperature</text>
+<text x="1215" y="867" text-anchor="end" class="datatype">varchar(30)</text>
+<rect x="711" y="878" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="901" class="key"></text>
+<text x="780" y="901" class="field">weirdness_level *</text>
+<text x="1215" y="901" text-anchor="end" class="datatype">varchar(20)</text>
+<text x="722" y="935" class="key"></text>
+<text x="780" y="935" class="field">recipe_description</text>
+<text x="1215" y="935" text-anchor="end" class="datatype">text</text>
+<rect x="711" y="946" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="969" class="key"></text>
+<text x="780" y="969" class="field">representative_image_url</text>
+<text x="1215" y="969" text-anchor="end" class="datatype">text</text>
+<text x="722" y="1003" class="key"></text>
+<text x="780" y="1003" class="field">created_at *</text>
+<text x="1215" y="1003" text-anchor="end" class="datatype">timestamp</text>
+</g>
+<g><rect x="1350" y="540" width="520" height="176" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M1360 540 H1860 Q1870 540 1870 550 V606 H1350 V550 Q1350 540 1360 540" fill="#183f50"/>
+<text x="1368" y="568" class="table-name">bookmarks</text><text x="1368" y="592" class="table-ko">저장 목록</text>
+<rect x="1351" y="606" width="518" height="34" fill="#f0f7f8"/>
+<text x="1362" y="629" class="key">PK/FK</text>
+<text x="1420" y="629" class="field">user_id *</text>
+<text x="1855" y="629" text-anchor="end" class="datatype">bigint</text>
+<text x="1362" y="663" class="key">PK/FK</text>
+<text x="1420" y="663" class="field">menu_id *</text>
+<text x="1855" y="663" text-anchor="end" class="datatype">bigint</text>
+<rect x="1351" y="674" width="518" height="34" fill="#f0f7f8"/>
+<text x="1362" y="697" class="key"></text>
+<text x="1420" y="697" class="field">saved_at *</text>
+<text x="1855" y="697" text-anchor="end" class="datatype">timestamp</text>
+</g>
+<g><rect x="70" y="1170" width="520" height="278" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M80 1170 H580 Q590 1170 590 1180 V1236 H70 V1180 Q70 1170 80 1170" fill="#183f50"/>
+<text x="88" y="1198" class="table-name">menu_options</text><text x="88" y="1222" class="table-ko">메뉴 옵션</text>
+<rect x="71" y="1236" width="518" height="34" fill="#f0f7f8"/>
+<text x="82" y="1259" class="key">PK</text>
+<text x="140" y="1259" class="field">option_id *</text>
+<text x="575" y="1259" text-anchor="end" class="datatype">bigint</text>
+<text x="82" y="1293" class="key">FK</text>
+<text x="140" y="1293" class="field">menu_id *</text>
+<text x="575" y="1293" text-anchor="end" class="datatype">bigint</text>
+<rect x="71" y="1304" width="518" height="34" fill="#f0f7f8"/>
+<text x="82" y="1327" class="key"></text>
+<text x="140" y="1327" class="field">action *</text>
+<text x="575" y="1327" text-anchor="end" class="datatype">varchar(20)</text>
+<text x="82" y="1361" class="key"></text>
+<text x="140" y="1361" class="field">ingredient_name *</text>
+<text x="575" y="1361" text-anchor="end" class="datatype">varchar(100)</text>
+<rect x="71" y="1372" width="518" height="34" fill="#f0f7f8"/>
+<text x="82" y="1395" class="key"></text>
+<text x="140" y="1395" class="field">quantity</text>
+<text x="575" y="1395" text-anchor="end" class="datatype">decimal(10,2)</text>
+<text x="82" y="1429" class="key"></text>
+<text x="140" y="1429" class="field">unit</text>
+<text x="575" y="1429" text-anchor="end" class="datatype">varchar(30)</text>
+</g>
+<g><rect x="710" y="1170" width="520" height="278" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M720 1170 H1220 Q1230 1170 1230 1180 V1236 H710 V1180 Q710 1170 720 1170" fill="#183f50"/>
+<text x="728" y="1198" class="table-name">reviews</text><text x="728" y="1222" class="table-ko">후기</text>
+<rect x="711" y="1236" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="1259" class="key">PK</text>
+<text x="780" y="1259" class="field">review_id *</text>
+<text x="1215" y="1259" text-anchor="end" class="datatype">bigint</text>
+<text x="722" y="1293" class="key">FK</text>
+<text x="780" y="1293" class="field">user_id *</text>
+<text x="1215" y="1293" text-anchor="end" class="datatype">bigint</text>
+<rect x="711" y="1304" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="1327" class="key">FK</text>
+<text x="780" y="1327" class="field">menu_id *</text>
+<text x="1215" y="1327" text-anchor="end" class="datatype">bigint</text>
+<text x="722" y="1361" class="key"></text>
+<text x="780" y="1361" class="field">rating *</text>
+<text x="1215" y="1361" text-anchor="end" class="datatype">smallint</text>
+<rect x="711" y="1372" width="518" height="34" fill="#f0f7f8"/>
+<text x="722" y="1395" class="key"></text>
+<text x="780" y="1395" class="field">content</text>
+<text x="1215" y="1395" text-anchor="end" class="datatype">text</text>
+<text x="722" y="1429" class="key"></text>
+<text x="780" y="1429" class="field">created_at *</text>
+<text x="1215" y="1429" text-anchor="end" class="datatype">timestamp</text>
+</g>
+<g><rect x="1350" y="1170" width="520" height="210" rx="10" fill="white" stroke="#c5d2df" stroke-width="1.5"/>
+<path d="M1360 1170 H1860 Q1870 1170 1870 1180 V1236 H1350 V1180 Q1350 1170 1360 1170" fill="#183f50"/>
+<text x="1368" y="1198" class="table-name">review_images</text><text x="1368" y="1222" class="table-ko">후기 이미지</text>
+<rect x="1351" y="1236" width="518" height="34" fill="#f0f7f8"/>
+<text x="1362" y="1259" class="key">PK</text>
+<text x="1420" y="1259" class="field">image_id *</text>
+<text x="1855" y="1259" text-anchor="end" class="datatype">bigint</text>
+<text x="1362" y="1293" class="key">FK</text>
+<text x="1420" y="1293" class="field">review_id *</text>
+<text x="1855" y="1293" text-anchor="end" class="datatype">bigint</text>
+<rect x="1351" y="1304" width="518" height="34" fill="#f0f7f8"/>
+<text x="1362" y="1327" class="key"></text>
+<text x="1420" y="1327" class="field">image_url *</text>
+<text x="1855" y="1327" text-anchor="end" class="datatype">text</text>
+<text x="1362" y="1361" class="key"></text>
+<text x="1420" y="1361" class="field">display_order *</text>
+<text x="1855" y="1361" text-anchor="end" class="datatype">smallint</text>
+</g>
+<text x="70" y="1510" class="subtitle">복합 고유 제약: external_accounts(provider, provider_user_id), (user_id, provider), review_images(review_id, display_order)</text>
+<text x="70" y="1540" class="subtitle">bookmarks의 PK는 (user_id, menu_id). 모든 FK는 삭제 제한. 영수증 인증은 별도 임시 상태로 관리.</text>
+<text x="70" y="1570" class="subtitle">개인 평점 1~5, 후기 이미지 최대 5장. 가중 평점과 설문 완료 여부는 파생값. 세부 정책은 원본 DBML 참고.</text>
+</svg>
